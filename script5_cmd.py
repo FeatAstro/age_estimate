@@ -39,7 +39,7 @@ from load_parsec import load_parsec, get_isochrone
 # ---------------------------------------------------------------------------
 name_complex = 'Orion_OB1'
 sky_tag      = 'ra75_90_dec-14_16'
-ms_tag       = '37'
+ms_tag       = '130'
 mc_tag       = '15'
 cv_tag       = '6'
 

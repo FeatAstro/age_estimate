@@ -26,7 +26,7 @@ from sklearn.cluster import HDBSCAN
 
 # ----------- Parameters
 MIN_CLUSTER_SIZE = 15
-MIN_SAMPLES      = 37  # tune as needed
+MIN_SAMPLES      = 150  # tune as needed
 CV               = 6   # velocity scaling (Kerr+2023, Ratzenböck+2022) / more --> kinematic more important than spatial
 
 # ----------- Paths

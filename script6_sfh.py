@@ -49,7 +49,7 @@ from astropy.table import Table, join
 # ---------------------------------------------------------------------------
 name_complex = 'Orion_OB1'
 sky_tag      = 'ra75_90_dec-14_16'
-ms_tag       = '37'
+ms_tag       = '130'
 mc_tag       = '15'
 cv_tag       = '6'
 
@@ -64,22 +64,21 @@ os.makedirs(path_im, exist_ok=True)
 # format: 'ASSOC_ID': (age, age_lo, age_hi)
 # age_lo = age - e_Age, age_hi = age + e_Age
 # '>' flag: treated as lower limit, age_hi set to 99.9
-# Orion OB1 reference ages — not available, labels only
-# fill from Briceño+2019 or Sanchez-Sanjuan (2024) when available
+# Orion OB1 reference ages 
 CAT_AGES = {
-    1:  (np.nan, np.nan, np.nan),   # lambda Ori
-    2:  (np.nan, np.nan, np.nan),   # Ori-North
-    3:  (np.nan, np.nan, np.nan),   # Briceno-1A
-    4:  (np.nan, np.nan, np.nan),   # Briceno-1B
-    5:  (np.nan, np.nan, np.nan),   # Ori-East
-    6:  (np.nan, np.nan, np.nan),   # OBP-Far
-    7:  (np.nan, np.nan, np.nan),   # sigma Ori
-    8:  (np.nan, np.nan, np.nan),   # OBP-b
-    9:  (np.nan, np.nan, np.nan),   # OBP-d
-    10: (np.nan, np.nan, np.nan),   # OBP-Near
-    11: (np.nan, np.nan, np.nan),   # ONC
-    12: (np.nan, np.nan, np.nan),   # Ori-South
-    13: (np.nan, np.nan, np.nan),   # Orion Y
+    1:  (4.7, 2.3, 11.0),   # lambda Ori
+    2:  (13.36, 8.73, 17.55),   # Ori-North
+    3:  (9.0, 5.6, 13.0),   # Briceno-1A
+    4:  (9.0, 5.6, 13.0),   # Briceno-1B
+    5:  (10.0,  8.0, 12.0),   # Ori-East
+    6:  (9.0,  7.0, 11.0),   # OBP-Far
+    7:  (2.5, 2.2, 2.8),   # sigma Ori
+    8:  (17.9, 11.4, 24.0),   # OBP-b
+    9:  (6.4, 2.1, 12.8),   # OBP-d
+    10: (6.8, 3.9, 10.4),   # OBP-Near
+    11: (2.0,  1.0,  3.0),   # ONC
+    12: (3.1, 1.0, 5.7),   # Ori-South
+    13: (18.2, 12.9, 28.0),   # Orion Y
 }
 
 # Full subgroup name mapping
@@ -187,7 +186,11 @@ def crossmatch_labels(results, cat, name_col):
 			best_str = best_raw.decode().strip() if isinstance(best_raw, bytes) else str(best_raw).strip()
 			frac     = counts.max() / n_tot * 100
 			ref_labels.append(f'{best_str} ({frac:.0f}%)')
-			cat_ages = CAT_AGES.get(best_str, (np.nan, np.nan, np.nan))
+			try:
+				best_key = int(best_str)
+			except (ValueError, TypeError):
+				best_key = best_str
+			cat_ages = CAT_AGES.get(best_key, (np.nan, np.nan, np.nan))
 			ref_ages.append(cat_ages[0])
 			ref_ages_lo.append(cat_ages[1])
 			ref_ages_hi.append(cat_ages[2])
@@ -214,7 +217,7 @@ def build_cluster_names(cat, name_col, hdb):
 
     try:
         matched = astropy_join(hdb, cat_dedup[['source_id', name_col]],
-                                keys='source_id', join_type='inner')
+                               keys='source_id', join_type='inner')
     except Exception as e:
         print(f"  Warning: crossmatch join failed ({e})")
         return {}
@@ -229,20 +232,19 @@ def build_cluster_names(cat, name_col, hdb):
 
         str_ids      = np.array(matched[name_col])[match_mask].astype(str)
         vals, counts = np.unique(str_ids, return_counts=True)
-        best_raw = vals[np.argmax(counts)]
-        # try int lookup first, fall back to string
+        best_raw     = vals[np.argmax(counts)]
+
+        # try int lookup first (Orion: integer IDs), fall back to string (Cep-Her: 'ORPH')
         try:
             best_key = int(best_raw)
         except (ValueError, TypeError):
             best_key = str(best_raw).strip()
-        best_str = str(CAT_NAMES.get(best_key, best_raw)).strip()
-        best_frac    = counts.max() / n_total
 
+        best_frac = counts.max() / n_total
         if best_frac >= 0.30:
-            names[int(cid)] = CAT_NAMES.get(best_str, best_str)
+            names[int(cid)] = CAT_NAMES.get(best_key, str(best_raw).strip())
 
     return names
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -307,12 +309,11 @@ def plot_age_vs_l(res, args, cmd='BPRP'):
                     color='green', zorder=5, fontweight='bold',
                     rotation=90, rotation_mode='anchor')
 
-    # Ratzenböck reference
-    has_ratz = False
+    has_cat = False
     if 'ref_age_myr' in res.colnames:
         ref_mask = np.isfinite(np.array(res['ref_age_myr']))
         if ref_mask.sum() > 0:
-            has_ratz = True
+            has_cat = True
             r_ages = np.array(res['ref_age_myr'])[ref_mask]
             r_lo   = np.array(res['ref_age_lo'])[ref_mask]
             r_hi   = np.array(res['ref_age_hi'])[ref_mask]
@@ -332,7 +333,7 @@ def plot_age_vs_l(res, args, cmd='BPRP'):
     cbar.ax.tick_params(labelsize=8)
 
     handles = []
-    if has_ratz:
+    if has_cat:
         handles.append(Line2D([0], [0], marker='^', color='w',
                                markerfacecolor='red',
                                markersize=8, label='Catalog'))

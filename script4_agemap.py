@@ -46,7 +46,7 @@ from astropy.table import Table, join
 # ---------------------------------------------------------------------------
 name_complex = 'Orion_OB1'
 sky_tag      = 'ra75_90_dec-14_16'
-ms_tag       = '37'
+ms_tag       = '130'
 mc_tag       = '15'
 cv_tag       = '6'
 
@@ -65,19 +65,19 @@ os.makedirs(path_results, exist_ok=True)
 # Orion OB1 reference ages — not available, labels only
 # fill from Briceño+2019 or Sanchez-Sanjuan (2024) when available
 CAT_AGES = {
-    1:  (np.nan, np.nan, np.nan),   # lambda Ori
-    2:  (np.nan, np.nan, np.nan),   # Ori-North
-    3:  (np.nan, np.nan, np.nan),   # Briceno-1A
-    4:  (np.nan, np.nan, np.nan),   # Briceno-1B
-    5:  (np.nan, np.nan, np.nan),   # Ori-East
-    6:  (np.nan, np.nan, np.nan),   # OBP-Far
-    7:  (np.nan, np.nan, np.nan),   # sigma Ori
-    8:  (np.nan, np.nan, np.nan),   # OBP-b
-    9:  (np.nan, np.nan, np.nan),   # OBP-d
-    10: (np.nan, np.nan, np.nan),   # OBP-Near
-    11: (np.nan, np.nan, np.nan),   # ONC
-    12: (np.nan, np.nan, np.nan),   # Ori-South
-    13: (np.nan, np.nan, np.nan),   # Orion Y
+    1:  (4.7, 2.3, 11.0),   # lambda Ori
+    2:  (13.36, 8.73, 17.55),   # Ori-North
+    3:  (9.0, 5.6, 13.0),   # Briceno-1A
+    4:  (9.0, 5.6, 13.0),   # Briceno-1B
+    5:  (10.0,  8.0, 12.0),   # Ori-East
+    6:  (9.0,  7.0, 11.0),   # OBP-Far
+    7:  (2.5, 2.2, 2.8),   # sigma Ori
+    8:  (17.9, 11.4, 24.0),   # OBP-b
+    9:  (6.4, 2.1, 12.8),   # OBP-d
+    10: (6.8, 3.9, 10.4),   # OBP-Near
+    11: (2.0,  1.0,  3.0),   # ONC
+    12: (3.1, 1.0, 5.7),   # Ori-South
+    13: (18.2, 12.9, 28.0),   # Orion Y
 }
 
 # Full subgroup name mapping
