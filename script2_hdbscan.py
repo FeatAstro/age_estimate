@@ -26,12 +26,12 @@ from sklearn.cluster import HDBSCAN
 
 # ----------- Parameters
 MIN_CLUSTER_SIZE = 15
-MIN_SAMPLES      = 30  # tune as needed
-CV               = 8   # velocity scaling (Kerr+2023, Ratzenböck+2022) / more --> kinematic more important than spatial
+MIN_SAMPLES      = 37  # tune as needed
+CV               = 6   # velocity scaling (Kerr+2023, Ratzenböck+2022) / more --> kinematic more important than spatial
 
 # ----------- Paths
-name_complex = 'Her_OB1'
-sky_tag   	 = 'ra264_332_dec13_64' # choose
+name_complex = 'Orion_OB1'
+sky_tag   	 = 'ra75_90_dec-14_16' # choose
 
 path_data    = 'data/processed/'
 path_out     = 'outputs/hdbscan/'
@@ -116,7 +116,7 @@ else:
     print("  phot_bp_rp_excess_factor not found, skipping C* cut")
 
 # ----------- Parallax cut
-plx_cut = (plx_corr >= 2.2) & (plx_corr <= 4.1)  # 244-455 pc
+plx_cut = (plx_corr >= 2.0) & (plx_corr <= 3.6)  
 
 # ----------- Absolute magnitude limit — automatic based on median distance
 # Gaia reliable photometry limit G < 19.0; faint limit scales with distance
@@ -135,7 +135,6 @@ mg_cut   = M_G < MG_max
 # ----------- CMD cut
 # Sanchez-Sanjuan (2024) Eq. 1 — 30 Myr PARSEC linear approximation 
 # Sanchez-Sanjuan show it matches isochrones from 6 Myr (λ Ori) to 38 Myr (NGC 2547) 
-# Sco-Cen at 5–20 Myr sits well within this range, so the cut is appropriate
 BP_RP = np.array(t['phot_bp_mean_mag']) - np.array(t['phot_rp_mean_mag'])
 M_RP  = np.array(t['phot_rp_mean_mag']) - 5 * np.log10(dist_pc) + 5
 

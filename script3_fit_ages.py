@@ -47,11 +47,11 @@ from fit_isochrone import prepare_cmd, fit_cluster
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-name_complex = 'Her_OB1'
-sky_tag      = 'ra264_332_dec13_64'
-cv_tag       = '8'
-ms_tag       = '30'
+name_complex = 'Orion_OB1'
+sky_tag      = 'ra75_90_dec-14_16' # choose
+ms_tag       = '37'
 mc_tag       = '15'
+cv_tag       = '6' 
 
 path_hdbscan = 'outputs/hdbscan/'
 path_grid    = 'grids/parsec_solar_gaia.dat'

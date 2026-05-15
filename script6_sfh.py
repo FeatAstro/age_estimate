@@ -47,11 +47,11 @@ from astropy.table import Table, join
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-name_complex = 'Her_OB1'
-sky_tag      = 'ra264_332_dec13_64'
-ms_tag       = '70'
-mc_tag       = '20'
-cv_tag       = '8'
+name_complex = 'Orion_OB1'
+sky_tag      = 'ra75_90_dec-14_16'
+ms_tag       = '37'
+mc_tag       = '15'
+cv_tag       = '6'
 
 run_tag      = f'{name_complex}_{sky_tag}_ms{ms_tag}_mc{mc_tag}_cv{cv_tag}'
 path_ages    = f'outputs/{run_tag}/ages/'
@@ -64,61 +64,33 @@ os.makedirs(path_im, exist_ok=True)
 # format: 'ASSOC_ID': (age, age_lo, age_hi)
 # age_lo = age - e_Age, age_hi = age + e_Age
 # '>' flag: treated as lower limit, age_hi set to 99.9
+# Orion OB1 reference ages — not available, labels only
+# fill from Briceño+2019 or Sanchez-Sanjuan (2024) when available
 CAT_AGES = {
-    'ORPH_1' : (27.9, 25.5, 30.3),   'ORPH_2' : (26.5, 23.7, 29.3),
-    'ORPH_3' : (39.0, 37.2, 40.8),   'ORPH_4' : (34.5, 32.0, 37.0),
-    'ORPH_5' : (30.0, 28.1, 31.9),   'ORPH_6' : (33.7, 29.9, 37.5),
-    'ORPH_7' : (39.8, 36.5, 43.1),   'ORPH_8' : (27.1, 25.8, 28.4),
-    'ORPH_9' : (32.8, 30.0, 35.6),   'ORPH_10': (24.9, 23.0, 26.8),
-    'ORPH_11': (32.4, 30.4, 34.4),   'ORPH_12': (27.7, 26.1, 29.3),
-    'ORPH_13': (26.5, 22.7, 30.3),   'ORPH_14': (26.0, 23.7, 28.3),
-    'ORPH_15': (26.5, 24.4, 28.6),   'ORPH_16': (34.5, 32.9, 36.1),
-    'ORPH_17': (27.9, 25.1, 30.7),   'ORPH_18': (30.0, 28.6, 31.4),
-    'ORPH_19': (27.3, 26.0, 28.6),   'ORPH_20': (32.6, 30.6, 34.6),
-    'ORPH_21': (31.4, 29.5, 33.3),   'ORPH_22': (31.7, 29.0, 34.4),
-    'ORPH_23': (30.1, 28.5, 31.7),   'ORPH_24': (27.4, 25.5, 29.3),
-    'ORPH_25': (34.9, 32.3, 37.5),   'ORPH_26': (28.0, 25.3, 30.7),
-    'ORPH_27': (28.7, 26.9, 30.5),   'ORPH_28': (32.1, 30.9, 33.3),
-    'CINR_1' : (27.9, 26.0, 29.8),   'CINR_2' : (37.1, 32.6, 41.6),
-    'CINR_3' : (29.3, 27.4, 31.2),   'CINR_4' : (38.5, 33.7, 43.3),
-    'CINR_5' : (31.4, 30.0, 32.8),   'CINR_6' : (29.9, 28.3, 31.5),
-    'CINR_7' : (32.9, 31.7, 34.1),   'CINR_8' : (39.3, 35.1, 43.5),
-    'CINR_9' : (43.1, 39.1, 47.1),   'CINR_10': (35.7, 34.2, 37.2),
-    'CUPV_1' : (68.2, 59.0, 77.4),   'CUPV_2' : (62.6, 50.8, 74.4),
-    'CUPV_3' : (55.3, 53.0, 57.6),   'CUPV_4' : (68.4, 59.4, 77.4),
-    'CUPV_5' : (71.0, 64.5, 77.5),   'CUPV_6' : (68.1, 61.4, 74.8),
-    'CUPV_7' : (80.0, 80.0, 99.9),   'CUPV_8' : (55.5, 51.4, 59.6),
-    'CUPV_9' : (53.8, 49.1, 58.5),   'CUPV_10': (58.4, 55.4, 61.4),
-    'ROS6_1' : (80.0, 80.0, 99.9),   'ROS6_2' : (71.2, 64.8, 77.6),
+    1:  (np.nan, np.nan, np.nan),   # lambda Ori
+    2:  (np.nan, np.nan, np.nan),   # Ori-North
+    3:  (np.nan, np.nan, np.nan),   # Briceno-1A
+    4:  (np.nan, np.nan, np.nan),   # Briceno-1B
+    5:  (np.nan, np.nan, np.nan),   # Ori-East
+    6:  (np.nan, np.nan, np.nan),   # OBP-Far
+    7:  (np.nan, np.nan, np.nan),   # sigma Ori
+    8:  (np.nan, np.nan, np.nan),   # OBP-b
+    9:  (np.nan, np.nan, np.nan),   # OBP-d
+    10: (np.nan, np.nan, np.nan),   # OBP-Near
+    11: (np.nan, np.nan, np.nan),   # ONC
+    12: (np.nan, np.nan, np.nan),   # Ori-South
+    13: (np.nan, np.nan, np.nan),   # Orion Y
 }
 
 # Full subgroup name mapping
 CAT_NAMES = {
-    'ORPH_1' : 'Orpheus 1',    'ORPH_2' : 'Orpheus 2',
-    'ORPH_3' : 'Orpheus 3',    'ORPH_4' : 'Orpheus 4',
-    'ORPH_5' : 'Orpheus 5',    'ORPH_6' : 'Orpheus 6',
-    'ORPH_7' : 'Orpheus 7',    'ORPH_8' : 'Orpheus 8',
-    'ORPH_9' : 'Orpheus 9',    'ORPH_10': 'Orpheus 10',
-    'ORPH_11': 'Orpheus 11',   'ORPH_12': 'Orpheus 12',
-    'ORPH_13': 'Orpheus 13',   'ORPH_14': 'Orpheus 14',
-    'ORPH_15': 'Orpheus 15',   'ORPH_16': 'Orpheus 16',
-    'ORPH_17': 'Orpheus 17',   'ORPH_18': 'Orpheus 18',
-    'ORPH_19': 'Orpheus 19',   'ORPH_20': 'Orpheus 20',
-    'ORPH_21': 'Orpheus 21',   'ORPH_22': 'Orpheus 22',
-    'ORPH_23': 'Orpheus 23',   'ORPH_24': 'Orpheus 24',
-    'ORPH_25': 'Orpheus 25',   'ORPH_26': 'Orpheus 26',
-    'ORPH_27': 'Orpheus 27',   'ORPH_28': 'Orpheus 28',
-    'CINR_1' : 'Cinyras 1',    'CINR_2' : 'Cinyras 2',
-    'CINR_3' : 'Cinyras 3',    'CINR_4' : 'Cinyras 4',
-    'CINR_5' : 'Cinyras 5',    'CINR_6' : 'Cinyras 6',
-    'CINR_7' : 'Cinyras 7',    'CINR_8' : 'Cinyras 8',
-    'CINR_9' : 'Cinyras 9',    'CINR_10': 'Cinyras 10',
-    'CUPV_1' : 'Cupavo 1',     'CUPV_2' : 'Cupavo 2',
-    'CUPV_3' : 'Cupavo 3',     'CUPV_4' : 'Cupavo 4',
-    'CUPV_5' : 'Cupavo 5',     'CUPV_6' : 'Cupavo 6',
-    'CUPV_7' : 'Cupavo 7',     'CUPV_8' : 'Cupavo 8',
-    'CUPV_9' : 'Cupavo 9',     'CUPV_10': 'Cupavo 10',
-    'ROS6_1' : 'Roslund 6-1',  'ROS6_2' : 'Roslund 6-2',
+    1:  'lambda Ori',   2:  'Ori-North',
+    3:  'Briceno-1A',   4:  'Briceno-1B',
+    5:  'Ori-East',     6:  'OBP-Far',
+    7:  'sigma Ori',    8:  'OBP-b',
+    9:  'OBP-d',        10: 'OBP-Near',
+    11: 'ONC',          12: 'Ori-South',
+    13: 'Orion Y',
 }
 
 CLUSTER_NAMES = {}
@@ -242,7 +214,7 @@ def build_cluster_names(cat, name_col, hdb):
 
     try:
         matched = astropy_join(hdb, cat_dedup[['source_id', name_col]],
-                               keys='source_id', join_type='inner')
+                                keys='source_id', join_type='inner')
     except Exception as e:
         print(f"  Warning: crossmatch join failed ({e})")
         return {}
@@ -257,7 +229,13 @@ def build_cluster_names(cat, name_col, hdb):
 
         str_ids      = np.array(matched[name_col])[match_mask].astype(str)
         vals, counts = np.unique(str_ids, return_counts=True)
-        best_str     = vals[np.argmax(counts)]
+        best_raw = vals[np.argmax(counts)]
+        # try int lookup first, fall back to string
+        try:
+            best_key = int(best_raw)
+        except (ValueError, TypeError):
+            best_key = str(best_raw).strip()
+        best_str = str(CAT_NAMES.get(best_key, best_raw)).strip()
         best_frac    = counts.max() / n_total
 
         if best_frac >= 0.30:
@@ -459,110 +437,110 @@ def plot_age_vs_dist(res, args, cmd='BPRP'):
 # Fig 3 — Age timeline (Gantt-style)
 # ---------------------------------------------------------------------------
 def plot_timeline(res, args, cmd='BPRP'):
-	ages  = np.array(res['age_map_myr'])
-	lo    = np.array(res['age_lo_myr'])
-	hi    = np.array(res['age_hi_myr'])
-	dist  = np.array(res['dist_mean'])
-	ids   = np.array(res['cluster_id'], dtype=int)
-	n_mem = np.array(res['n_members'])
+    ages  = np.array(res['age_map_myr'])
+    lo    = np.array(res['age_lo_myr'])
+    hi    = np.array(res['age_hi_myr'])
+    dist  = np.array(res['dist_mean'])
+    ids   = np.array(res['cluster_id'], dtype=int)
+    n_mem = np.array(res['n_members'])
 
-	# sort by distance (near to far)
-	sort_idx = np.argsort(dist)
-	ages  = ages[sort_idx]
-	lo    = lo[sort_idx]
-	hi    = hi[sort_idx]
-	dist  = dist[sort_idx]
-	ids   = ids[sort_idx]
-	n_mem = n_mem[sort_idx]
+    # sort by distance (near to far)
+    sort_idx = np.argsort(dist)
+    ages  = ages[sort_idx]
+    lo    = lo[sort_idx]
+    hi    = hi[sort_idx]
+    dist  = dist[sort_idx]
+    ids   = ids[sort_idx]
+    n_mem = n_mem[sort_idx]
 
-	labels = [f"{get_label(cid)}  ({d:.0f} pc)"
-	          for cid, d in zip(ids, dist)]
+    labels = [f"{get_label(cid)}  ({d:.0f} pc)"
+                for cid, d in zip(ids, dist)]
 
-	# plasma_r: dark purple (young) -> yellow (old), no white tones
-	cmap = plt.cm.plasma_r
-	norm = mcolors.Normalize(vmin=max(0, float(ages.min()) - 2),
-	                         vmax=float(ages.max()) + 2)
-	colors = cmap(norm(ages))
+    # plasma_r: dark purple (young) -> yellow (old), no white tones
+    cmap = plt.cm.plasma_r
+    norm = mcolors.Normalize(vmin=max(0, float(ages.min()) - 2),
+                                vmax=float(ages.max()) + 2)
+    colors = cmap(norm(ages))
 
-	# bar thickness proportional to sqrt(N)
-	bar_heights = 0.15 + 0.15 * (np.sqrt(n_mem) / np.sqrt(n_mem.max()))
+    # bar thickness proportional to sqrt(N)
+    bar_heights = 0.15 + 0.15 * (np.sqrt(n_mem) / np.sqrt(n_mem.max()))
 
-	fig, ax = plt.subplots(figsize=(12, max(5, len(res) * 0.55 + 1.5)))
+    fig, ax = plt.subplots(figsize=(12, max(5, len(res) * 0.55 + 1.5)))
 
-	for i, (age, age_lo, age_hi, col, bh) in enumerate(
-	        zip(ages, lo, hi, colors, bar_heights)):
-	        # HDI bar
-	    ax.barh(i, age_hi - age_lo, left=age_lo,
-	            height=bh, color=col, alpha=0.35,
-	            edgecolor='none', zorder=2)
-	    # horizontal line through center of bar
-	    ax.hlines(i, age_lo, age_hi,
-	          colors=col, linewidth=1.5, alpha=0.9, zorder=3)
-	    # MAP marker
-	    ax.plot(age, i, 'o', color=col, markersize=8,
-	            zorder=4)
-	    # age value text
-	    ax.text(age, i + bh / 2.0 + 0.08,
-	        f'{age:.1f} Myr',
-	        va='bottom', ha='center', fontsize=7.5,
-	        color='#333333', zorder=5)
+    for i, (age, age_lo, age_hi, col, bh) in enumerate(
+            zip(ages, lo, hi, colors, bar_heights)):
+            # HDI bar
+        ax.barh(i, age_hi - age_lo, left=age_lo,
+                height=bh, color=col, alpha=0.35,
+                edgecolor='none', zorder=2)
+        # horizontal line through center of bar
+        ax.hlines(i, age_lo, age_hi,
+                colors=col, linewidth=1.5, alpha=0.9, zorder=3)
+        # MAP marker
+        ax.plot(age, i, 'o', color=col, markersize=8,
+                zorder=4)
+        # age value text
+        ax.text(age, i + bh / 2.0 + 0.08,
+            f'{age:.1f} Myr',
+            va='bottom', ha='center', fontsize=7.5,
+            color='#333333', zorder=5)
 
-	# Ratzenböck reference markers
-	if 'ref_age_myr' in res.colnames:
-		for i, row in enumerate(res[sort_idx]):
-			ref_age = float(row['ref_age_myr'])
-			ref_lo  = float(row['ref_age_lo'])
-			ref_hi  = float(row['ref_age_hi'])
-			if np.isfinite(ref_age):
-			    # error bar first (behind marker)
-			    ax.errorbar(ref_age, i,
-			                xerr=[[ref_age - ref_lo], [ref_hi - ref_age]],
-			                fmt='none',
-			                ecolor='red', elinewidth=1.2,
-			                capsize=4, capthick=1.2,
-			                zorder=4)
-			    # triangle marker on top
-			    ax.plot(ref_age, i, '^', color='red',
-			            markersize=7, zorder=5,
-			            label='Ratzenböck+2023' if i == 0 else '')
+    # Ratzenböck reference markers
+    if 'ref_age_myr' in res.colnames:
+        for i, row in enumerate(res[sort_idx]):
+            ref_age = float(row['ref_age_myr'])
+            ref_lo  = float(row['ref_age_lo'])
+            ref_hi  = float(row['ref_age_hi'])
+            if np.isfinite(ref_age):
+                # error bar first (behind marker)
+                ax.errorbar(ref_age, i,
+                            xerr=[[ref_age - ref_lo], [ref_hi - ref_age]],
+                            fmt='none',
+                            ecolor='red', elinewidth=1.2,
+                            capsize=4, capthick=1.2,
+                            zorder=4)
+                # triangle marker on top
+                ax.plot(ref_age, i, '^', color='red',
+                        markersize=7, zorder=5,
+                        label='Ratzenböck+2023' if i == 0 else '')
 
-	ax.set_yticks(range(len(res)))
-	ax.set_yticklabels(labels, fontsize=9)
-	ax.set_xlabel('Age (Myr)', fontsize=12)
-	ax.set_title(f'Star formation timeline — {name_complex}  '
-	             f'(ordered by distance, PARSEC-{cmd})',
-	             fontsize=12)
-	ax.xaxis.set_minor_locator(AutoMinorLocator())
-	ax.grid(True, axis='x', alpha=0.2, linestyle='--')
+    ax.set_yticks(range(len(res)))
+    ax.set_yticklabels(labels, fontsize=9)
+    ax.set_xlabel('Age (Myr)', fontsize=12)
+    ax.set_title(f'Star formation timeline — {name_complex}  '
+                    f'(ordered by distance, PARSEC-{cmd})',
+                    fontsize=12)
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.grid(True, axis='x', alpha=0.2, linestyle='--')
 
-	# colorbar
-	sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-	sm.set_array([])
-	cbar = plt.colorbar(sm, ax=ax, pad=0.01, fraction=0.02)
-	cbar.set_label('Age (Myr)', fontsize=10)
+    # colorbar
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=ax, pad=0.01, fraction=0.02)
+    cbar.set_label('Age (Myr)', fontsize=10)
 
-	# legend
-	handles = [
-	    Line2D([0], [0], marker='o', color='w',
-	           markerfacecolor='#888888',
-	           markersize=8, label='MAP age'),
-	    Line2D([0], [0], marker='s', color='#888888',
-	           alpha=0.35, markersize=12, label='68% HDI'),
-	]
-	if 'ref_age_myr' in res.colnames:
-	    handles.append(
-	        Line2D([0], [0], marker='^', color='w',
-	            markerfacecolor='red',
-	            markersize=7, label='Catalog ± 68% HDI')
-	    )
-	ax.legend(handles=handles, fontsize=8, loc='lower right',
-	          framealpha=0.9, edgecolor='#aaaaaa')
+    # legend
+    handles = [
+        Line2D([0], [0], marker='o', color='w',
+                markerfacecolor='#888888',
+                markersize=8, label='MAP age'),
+        Line2D([0], [0], marker='s', color='#888888',
+                alpha=0.35, markersize=12, label='68% HDI'),
+    ]
+    if 'ref_age_myr' in res.colnames:
+        handles.append(
+            Line2D([0], [0], marker='^', color='w',
+                markerfacecolor='red',
+                markersize=7, label='Catalog ± 68% HDI')
+        )
+    ax.legend(handles=handles, fontsize=8, loc='lower right',
+                framealpha=0.9, edgecolor='#aaaaaa')
 
-	plt.tight_layout()
-	out = path_im + f'sfh_timeline_{cmd}.png'
-	plt.savefig(out, dpi=150, bbox_inches='tight')
-	plt.close()
-	print(f"Saved: {out}")
+    plt.tight_layout()
+    out = path_im + f'sfh_timeline_{cmd}.png'
+    plt.savefig(out, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"Saved: {out}")
 
 
 # ---------------------------------------------------------------------------
