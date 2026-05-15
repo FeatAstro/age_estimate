@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+venv/
+.venv/
+
+# Data (souvent trop lourd pour GitHub)
+data/raw/
+data/processed/
+*.fits
+*.csv
+*.hdf5
+
+# Outputs (régénérables, pas à versionner)
+outputs/
+*.png
+*.pdf
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
