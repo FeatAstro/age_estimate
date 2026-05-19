@@ -101,122 +101,127 @@ PRIOR_BOUNDS = {
     "a":       (0.15, 0.9),
 }
 
-
 # ---------------------------------------------------------------------------
 # 1. Photometric quality cuts and CMD preparation
 # ---------------------------------------------------------------------------
 
 def prepare_cmd(
-	G_app, BP_app, RP_app,
-	flux_snr_G, flux_snr_BP, flux_snr_RP,
-	dist_pc,
-	excess_factor=None,
-	cmd="BPRP",
-	MG_max=12.0,
-	debug=False,
+    G_app, BP_app, RP_app,
+    flux_snr_G, flux_snr_BP, flux_snr_RP,
+    dist_pc, pmem,
+    excess_factor=None,
+    cmd="BPRP",
+    MG_max=12.0,
+    debug=False,
 ):
-	"""
-	Apply Paper II photometric quality cuts and return clean CMD arrays.
+    """
+    Apply Paper II photometric quality cuts and return clean CMD arrays.
 
-	Parameters
-	----------
-	G_app, BP_app, RP_app : array
-		Apparent Gaia magnitudes for cluster members.
-	flux_snr_G/BP/RP : array
-		phot_*_mean_flux_over_error from Gaia DR3.
-	dist_pc : array
-		Per-star distances in pc.
-	excess_factor : array or None
-		phot_bp_rp_excess_factor. If None, C* cut is skipped.
-	cmd : str
-		"BPRP" or "GRP". Default "BPRP".
-	MG_max : float
-		Absolute magnitude faint limit. Default 10.0 (Paper II Eq. 3).
-	debug : bool
-		If True, print step-by-step star counts.
+    Parameters
+    ----------
+    G_app, BP_app, RP_app : array
+        Apparent Gaia magnitudes for cluster members.
+    flux_snr_G/BP/RP : array
+        phot_*_mean_flux_over_error from Gaia DR3.
+    dist_pc : array
+        Per-star distances in pc.
+    pmem : array
+        Probability of membership for each star. Used to apply a pmem > 0.5 cut.
+    excess_factor : array or None
+        phot_bp_rp_excess_factor. If None, C* cut is skipped.
+    cmd : str
+        "BPRP" or "GRP". Default "BPRP".
+    MG_max : float
+        Absolute magnitude faint limit. Default 12.0 (Paper II Eq. 3).
+    debug : bool
+        If True, print step-by-step star counts.
 
-	Returns
-	-------
-	color, mag, mask
-	"""
-	G_app   = np.asarray(G_app,   dtype=float)
-	BP_app  = np.asarray(BP_app,  dtype=float)
-	RP_app  = np.asarray(RP_app,  dtype=float)
-	dist_pc = np.asarray(dist_pc, dtype=float)
+    Returns
+    -------
+    color, mag, mask
+    """
+    G_app   = np.asarray(G_app,   dtype=float)
+    BP_app  = np.asarray(BP_app,  dtype=float)
+    RP_app  = np.asarray(RP_app,  dtype=float)
+    dist_pc = np.asarray(dist_pc, dtype=float)
 
-	if debug:
-		print(f"        [pcmd] N input: {len(G_app)}")
-		print(f"        [pcmd] BP finite: {np.isfinite(BP_app).sum()}")
-		print(f"        [pcmd] RP finite: {np.isfinite(RP_app).sum()}")
-		print(f"        [pcmd] dist finite: {np.isfinite(dist_pc).sum()}")
+    if debug:
+        print(f"        [pcmd] N input: {len(G_app)}")
+        print(f"        [pcmd] BP finite: {np.isfinite(BP_app).sum()}")
+        print(f"        [pcmd] RP finite: {np.isfinite(RP_app).sum()}")
+        print(f"        [pcmd] dist finite: {np.isfinite(dist_pc).sum()}")
 
-	# distance modulus per star
-	mu     = 5.0 * np.log10(dist_pc) - 5.0
-	G_abs  = G_app  - mu
-	BP_abs = BP_app - mu
-	RP_abs = RP_app - mu
+    # distance modulus per star
+    mu     = 5.0 * np.log10(dist_pc) - 5.0
+    G_abs  = G_app  - mu
+    BP_abs = BP_app - mu
+    RP_abs = RP_app - mu
 
-	if debug:
-		print(f"        [pcmd] G_abs range: {np.nanmin(G_abs):.2f} to {np.nanmax(G_abs):.2f}")
-		print(f"        [pcmd] G_abs finite: {np.isfinite(G_abs).sum()}")
+    if debug:
+        print(f"        [pcmd] G_abs range: {np.nanmin(G_abs):.2f} to {np.nanmax(G_abs):.2f}")
+        print(f"        [pcmd] G_abs finite: {np.isfinite(G_abs).sum()}")
 
-	# photometric error cuts (Paper II Eq. 2)
-	G_err  = 1.0857 / np.asarray(flux_snr_G,  dtype=float)
-	BP_err = 1.0857 / np.asarray(flux_snr_BP, dtype=float)
-	RP_err = 1.0857 / np.asarray(flux_snr_RP, dtype=float)
+    # photometric error cuts (Paper II Eq. 2)
+    G_err  = 1.0857 / np.asarray(flux_snr_G,  dtype=float)
+    BP_err = 1.0857 / np.asarray(flux_snr_BP, dtype=float)
+    RP_err = 1.0857 / np.asarray(flux_snr_RP, dtype=float)
 
-	quality = (G_err < 0.007) & (RP_err < 0.03) & (BP_err < 0.15)
+    quality = (G_err < 0.007) & (RP_err < 0.03) & (BP_err < 0.15)
 
-	if debug:
-		print(f"        [pcmd] after SNR cuts: {quality.sum()}")
-		print(f"        [pcmd]   G_err<0.007:  {(G_err<0.007).sum()}")
-		print(f"        [pcmd]   RP_err<0.03:  {(RP_err<0.03).sum()}")
-		print(f"        [pcmd]   BP_err<0.15:  {(BP_err<0.15).sum()}")
+    if debug:
+        print(f"        [pcmd] after SNR cuts: {quality.sum()}")
+        print(f"        [pcmd]   G_err<0.007:  {(G_err<0.007).sum()}")
+        print(f"        [pcmd]   RP_err<0.03:  {(RP_err<0.03).sum()}")
+        print(f"        [pcmd]   BP_err<0.15:  {(BP_err<0.15).sum()}")
 
-	# C* cut (Paper II Eq. 2, Riello+2021)
-	# The flux SNR cuts above already remove stars with unreliable BP/RP
-	# photometry. The Riello+2021 correction polynomial requires careful
-	# calibration of the color-dependent expected C value.
-	if excess_factor is not None:
-		G_mag  = G_app - mu   # use apparent mag for Riello polynomial
-		x      = BP_app - RP_app
-		f      = np.where(
-			x < 0.5,
-			1.154360 + 0.033772*x + 0.032277*x**2,
-			np.where(
-				x < 4.0,
-				1.162004 + 0.011464*x + 0.049255*x**2 - 0.005879*x**3,
-				1.057572 + 0.140537*x
-			)
-		)
-		C_star       = np.asarray(excess_factor, dtype=float) - f
-		sigma_C_star = 0.0059898 + 8.817481e-12 * G_app**7.618399
-		excess_cut   = (np.abs(C_star) < 5 * sigma_C_star) | (G_app <= 5.0)
-		quality     &= excess_cut
-	if debug:
-		print(f"        [pcmd] after C* cut: {quality.sum()}")
+    # C* cut (Paper II Eq. 2, Riello+2021)
+    # The flux SNR cuts above already remove stars with unreliable BP/RP
+    # photometry. The Riello+2021 correction polynomial requires careful
+    # calibration of the color-dependent expected C value.
+    if excess_factor is not None:
+        G_mag  = G_app - mu   # use apparent mag for Riello polynomial
+        x      = BP_app - RP_app
+        f      = np.where(
+            x < 0.5,
+            1.154360 + 0.033772*x + 0.032277*x**2,
+            np.where(
+                x < 4.0,
+                1.162004 + 0.011464*x + 0.049255*x**2 - 0.005879*x**3,
+                1.057572 + 0.140537*x
+            )
+        )
+        C_star       = np.asarray(excess_factor, dtype=float) - f
+        sigma_C_star = 0.0059898 + 8.817481e-12 * G_app**7.618399
+        excess_cut   = (np.abs(C_star) < 5 * sigma_C_star) | (G_app <= 5.0)
+        quality     &= excess_cut
+    if debug:
+        print(f"        [pcmd] after C* cut: {quality.sum()}")
 
-	# absolute magnitude limit (Paper II Eq. 3)
-	quality &= (G_abs < MG_max)
-	if debug:
-		print(f"        [pcmd] after MG<{MG_max}: {quality.sum()}")
+    # absolute magnitude limit (Paper II Eq. 3)
+    quality &= (G_abs < MG_max)
+    if debug:
+        print(f"        [pcmd] after MG<{MG_max}: {quality.sum()}")
 
-	# remove NaN in any band
-	quality &= (np.isfinite(G_abs) & np.isfinite(BP_abs) & np.isfinite(RP_abs))
-	if debug:
-		print(f"        [pcmd] after NaN filter: {quality.sum()}")
+    # remove NaN in any band
+    quality &= (np.isfinite(G_abs) & np.isfinite(BP_abs) & np.isfinite(RP_abs))
+    if debug:
+        print(f"        [pcmd] after NaN filter: {quality.sum()}")
 
-	# build CMD arrays
-	if cmd == "BPRP":
-		color = BP_abs - RP_abs
-		mag   = G_abs
-	elif cmd == "GRP":
-		color = G_abs - RP_abs
-		mag   = G_abs
-	else:
-		raise ValueError(f"cmd must be 'BPRP' or 'GRP', got '{cmd}'")
+    # membership probability cut (not worth applying it since it can bias the sample)      
+    #pmem_cut = np.asarray(pmem, dtype=float) > 0.5
+    #quality &= pmem_cut
 
-	return color[quality], mag[quality], quality
+    # build CMD arrays
+    if cmd == "BPRP":
+        color = BP_abs - RP_abs
+        mag   = G_abs
+    elif cmd == "GRP":
+        color = G_abs - RP_abs
+        mag   = G_abs
+    else:
+        raise ValueError(f"cmd must be 'BPRP' or 'GRP', got '{cmd}'")
+
+    return color[quality], mag[quality], quality
 
 
 # ---------------------------------------------------------------------------
@@ -458,7 +463,7 @@ def fit_cluster(
     obs_mag,
     grid,
     cmd="BPRP",
-    nlive=400,
+    nlive=200,
     sample="rwalk",
     bound="multi",
     seed=42,

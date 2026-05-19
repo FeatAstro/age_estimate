@@ -39,6 +39,8 @@ import sys
 import argparse
 import numpy as np
 from astropy.table import Table
+from astropy.coordinates import SkyCoord, CartesianRepresentation
+import astropy.units as u
 import dynesty
 
 from load_parsec import load_parsec
@@ -47,11 +49,11 @@ from fit_isochrone import prepare_cmd, fit_cluster
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-name_complex = 'Orion_OB1'
-sky_tag      = 'ra75_90_dec-14_16' # choose
-ms_tag       = '130'
-mc_tag       = '15'
-cv_tag       = '6' 
+name_complex = 'Sco_Cen'
+sky_tag      = 'ra100_300_dec-90_0' # choose
+ms_tag       = '80'
+mc_tag       = '20'
+cv_tag       = '10' 
 
 path_hdbscan = 'outputs/hdbscan/'
 path_grid    = 'grids/parsec_solar_gaia.dat'
@@ -143,7 +145,8 @@ def main():
         flux_snr_RP = _col(sub['phot_rp_mean_flux_over_error']).astype(float)
 
         plx     = np.array(sub['parallax_corrected'])
-        dist_pc = 1000.0 / np.where(plx > 0, plx, np.nan)
+        dist_pc = np.array(sub['distance'])  # we can also use 1000.0 / np.where(plx > 0, plx, np.nan) as an approximation
+        pmem    = _col(sub['probability']).astype(float) 
 
         excess = (_col(sub['phot_bp_rp_excess_factor']).astype(float)
                   if 'phot_bp_rp_excess_factor' in sub.colnames else None)
@@ -154,7 +157,7 @@ def main():
             color, mag, quality_mask = prepare_cmd(
                 G_app, BP_app, RP_app,
                 flux_snr_G, flux_snr_BP, flux_snr_RP,
-                dist_pc,
+                dist_pc, pmem,
                 excess_factor=excess,
                 cmd=args.cmd,
                 MG_max=12.0,
@@ -203,12 +206,29 @@ def main():
               f"  Av = {map_v['Av']:.2f}  logZ = {result['log_evidence']:.1f}",
               flush=True)
 
-        ra_mean   = np.mean(np.array(sub['ra']))
-        dec_mean  = np.mean(np.array(sub['dec']))
-        l_mean    = np.mean(np.array(sub['l']))
-        b_mean    = np.mean(np.array(sub['b']))
-        dist_mean = np.nanmean(dist_pc)
+        ra_vals = np.radians(np.array(sub['ra'], dtype=float))
+        dec_vals = np.radians(np.array(sub['dec'], dtype=float))
+
+        x = dist_pc * np.cos(dec_vals) * np.cos(ra_vals)
+        y = dist_pc * np.cos(dec_vals) * np.sin(ra_vals)
+        z = dist_pc * np.sin(dec_vals)
+
+        x_mean = np.mean(x)
+        y_mean = np.mean(y)
+        z_mean = np.mean(z)
+        dist_mean = np.sqrt(x_mean**2 + y_mean**2 + z_mean**2)
         dist_std  = np.nanstd(dist_pc)
+
+        center_icrs = SkyCoord(
+            CartesianRepresentation(x_mean * u.pc,
+                                    y_mean * u.pc,
+                                    z_mean * u.pc),
+            frame='icrs')
+        ra_mean  = center_icrs.ra.deg
+        dec_mean = center_icrs.dec.deg
+        gal      = center_icrs.galactic
+        l_mean   = gal.l.wrap_at(360 * u.deg).deg
+        b_mean   = gal.b.deg
 
         rows.append({
             'cluster_id':       k,
@@ -231,6 +251,9 @@ def main():
             'dec_mean':         dec_mean,
             'l_mean':           l_mean,
             'b_mean':           b_mean,
+            'x_mean':           x_mean,
+            'y_mean':           y_mean,
+            'z_mean':           z_mean,
             'dist_mean':        dist_mean,
             'dist_std':         dist_std,
         })

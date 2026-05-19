@@ -66,7 +66,6 @@ else:
     print("  fidelity column not found, using RUWE < 1.4 only")
 
 # ----------- XYZ positions from corrected parallax (1000/parallax_corrected)
-
 plx_corr = np.array(t['parallax_corrected'])
 d_plx    = np.array(t['r_med_geo'])   # BailerJones geometric distance
 

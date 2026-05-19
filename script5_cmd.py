@@ -37,11 +37,11 @@ from load_parsec import load_parsec, get_isochrone
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-name_complex = 'Orion_OB1'
-sky_tag      = 'ra75_90_dec-14_16'
-ms_tag       = '130'
-mc_tag       = '15'
-cv_tag       = '6'
+name_complex = 'Sco_Cen'
+sky_tag      = 'ra100_300_dec-90_0' # choose
+ms_tag       = '80'
+mc_tag       = '20'
+cv_tag       = '10' 
 
 run_tag      = f'{name_complex}_{sky_tag}_ms{ms_tag}_mc{mc_tag}_cv{cv_tag}'
 path_ages    = f'outputs/{run_tag}/ages/'

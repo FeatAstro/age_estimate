@@ -47,11 +47,11 @@ from astropy.table import Table, join
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-name_complex = 'Orion_OB1'
-sky_tag      = 'ra75_90_dec-14_16'
-ms_tag       = '130'
-mc_tag       = '15'
-cv_tag       = '6'
+name_complex = 'Sco_Cen'
+sky_tag      = 'ra100_300_dec-90_0' # choose
+ms_tag       = '80'
+mc_tag       = '20'
+cv_tag       = '10' 
 
 run_tag      = f'{name_complex}_{sky_tag}_ms{ms_tag}_mc{mc_tag}_cv{cv_tag}'
 path_ages    = f'outputs/{run_tag}/ages/'
@@ -60,39 +60,165 @@ path_im      = f'outputs/{run_tag}/sfh/'
 
 os.makedirs(path_im, exist_ok=True)
 
-# Kerr+2024 reference ages per subgroup (PARSEC-BPRP, Table 3)
-# format: 'ASSOC_ID': (age, age_lo, age_hi)
-# age_lo = age - e_Age, age_hi = age + e_Age
-# '>' flag: treated as lower limit, age_hi set to 99.9
-# Orion OB1 reference ages 
+# Orion OB1 (Sanchez-Sanjuan et al. 2024)
+# CAT_AGES = {
+# 1:  (4.7, 2.3, 11.0),   # lambda Ori
+# 2:  (13.36, 8.73, 17.55),   # Ori-North
+# 3:  (9.0, 5.6, 13.0),   # Briceno-1A
+# 4:  (9.0, 5.6, 13.0),   # Briceno-1B
+# 5:  (10.0,  8.0, 12.0),   # Ori-East
+# 6:  (9.0,  7.0, 11.0),   # OBP-Far
+# 7:  (2.5, 2.2, 2.8),   # sigma Ori
+# 8:  (17.9, 11.4, 24.0),   # OBP-b
+# 9:  (6.4, 2.1, 12.8),   # OBP-d
+# 10: (6.8, 3.9, 10.4),   # OBP-Near
+# 11: (2.0,  1.0,  3.0),   # ONC
+# 12: (3.1, 1.0, 5.7),   # Ori-South
+# 13: (18.2, 12.9, 28.0),   # Orion Y
+# }
+
+# # Full subgroup name mapping
+# CAT_NAMES = {
+# 1:  'lambda Ori',   2:  'Ori-North',
+# 3:  'Briceno-1A',   4:  'Briceno-1B',
+# 5:  'Ori-East',     6:  'OBP-Far',
+# 7:  'sigma Ori',    8:  'OBP-b',
+# 9:  'OBP-d',        10: 'OBP-Near',
+# 11: 'ONC',          12: 'Ori-South',
+# 13: 'Orion Y',
+# }
+
+# ------------------------------------------------------------------------------#
+
+# Her OB1 (Kerr et al. 2024)
+# CAT_AGES = {
+#     'ORPH_1' : (27.9, 25.5, 30.3),   'ORPH_2' : (26.5, 23.7, 29.3),
+#     'ORPH_3' : (39.0, 37.2, 40.8),   'ORPH_4' : (34.5, 32.0, 37.0),
+#     'ORPH_5' : (30.0, 28.1, 31.9),   'ORPH_6' : (33.7, 29.9, 37.5),
+#     'ORPH_7' : (39.8, 36.5, 43.1),   'ORPH_8' : (27.1, 25.8, 28.4),
+#     'ORPH_9' : (32.8, 30.0, 35.6),   'ORPH_10': (24.9, 23.0, 26.8),
+#     'ORPH_11': (32.4, 30.4, 34.4),   'ORPH_12': (27.7, 26.1, 29.3),
+#     'ORPH_13': (26.5, 22.7, 30.3),   'ORPH_14': (26.0, 23.7, 28.3),
+#     'ORPH_15': (26.5, 24.4, 28.6),   'ORPH_16': (34.5, 32.9, 36.1),
+#     'ORPH_17': (27.9, 25.1, 30.7),   'ORPH_18': (30.0, 28.6, 31.4),
+#     'ORPH_19': (27.3, 26.0, 28.6),   'ORPH_20': (32.6, 30.6, 34.6),
+#     'ORPH_21': (31.4, 29.5, 33.3),   'ORPH_22': (31.7, 29.0, 34.4),
+#     'ORPH_23': (30.1, 28.5, 31.7),   'ORPH_24': (27.4, 25.5, 29.3),
+#     'ORPH_25': (34.9, 32.3, 37.5),   'ORPH_26': (28.0, 25.3, 30.7),
+#     'ORPH_27': (28.7, 26.9, 30.5),   'ORPH_28': (32.1, 30.9, 33.3),
+#     'CINR_1' : (27.9, 26.0, 29.8),   'CINR_2' : (37.1, 32.6, 41.6),
+#     'CINR_3' : (29.3, 27.4, 31.2),   'CINR_4' : (38.5, 33.7, 43.3),
+#     'CINR_5' : (31.4, 30.0, 32.8),   'CINR_6' : (29.9, 28.3, 31.5),
+#     'CINR_7' : (32.9, 31.7, 34.1),   'CINR_8' : (39.3, 35.1, 43.5),
+#     'CINR_9' : (43.1, 39.1, 47.1),   'CINR_10': (35.7, 34.2, 37.2),
+#     'CUPV_1' : (68.2, 59.0, 77.4),   'CUPV_2' : (62.6, 50.8, 74.4),
+#     'CUPV_3' : (55.3, 53.0, 57.6),   'CUPV_4' : (68.4, 59.4, 77.4),
+#     'CUPV_5' : (71.0, 64.5, 77.5),   'CUPV_6' : (68.1, 61.4, 74.8),
+#     'CUPV_7' : (80.0, 80.0, 99.9),   'CUPV_8' : (55.5, 51.4, 59.6),
+#     'CUPV_9' : (53.8, 49.1, 58.5),   'CUPV_10': (58.4, 55.4, 61.4),
+#     'ROS6_1' : (80.0, 80.0, 99.9),   'ROS6_2' : (71.2, 64.8, 77.6),
+# }
+
+# CAT_NAMES = {
+#     'ORPH_1' : 'Orpheus 1',    'ORPH_2' : 'Orpheus 2',
+#     'ORPH_3' : 'Orpheus 3',    'ORPH_4' : 'Orpheus 4',
+#     'ORPH_5' : 'Orpheus 5',    'ORPH_6' : 'Orpheus 6',
+#     'ORPH_7' : 'Orpheus 7',    'ORPH_8' : 'Orpheus 8',
+#     'ORPH_9' : 'Orpheus 9',    'ORPH_10': 'Orpheus 10',
+#     'ORPH_11': 'Orpheus 11',   'ORPH_12': 'Orpheus 12',
+#     'ORPH_13': 'Orpheus 13',   'ORPH_14': 'Orpheus 14',
+#     'ORPH_15': 'Orpheus 15',   'ORPH_16': 'Orpheus 16',
+#     'ORPH_17': 'Orpheus 17',   'ORPH_18': 'Orpheus 18',
+#     'ORPH_19': 'Orpheus 19',   'ORPH_20': 'Orpheus 20',
+#     'ORPH_21': 'Orpheus 21',   'ORPH_22': 'Orpheus 22',
+#     'ORPH_23': 'Orpheus 23',   'ORPH_24': 'Orpheus 24',
+#     'ORPH_25': 'Orpheus 25',   'ORPH_26': 'Orpheus 26',
+#     'ORPH_27': 'Orpheus 27',   'ORPH_28': 'Orpheus 28',
+#     'CINR_1' : 'Cinyras 1',    'CINR_2' : 'Cinyras 2',
+#     'CINR_3' : 'Cinyras 3',    'CINR_4' : 'Cinyras 4',
+#     'CINR_5' : 'Cinyras 5',    'CINR_6' : 'Cinyras 6',
+#     'CINR_7' : 'Cinyras 7',    'CINR_8' : 'Cinyras 8',
+#     'CINR_9' : 'Cinyras 9',    'CINR_10': 'Cinyras 10',
+#     'CUPV_1' : 'Cupavo 1',     'CUPV_2' : 'Cupavo 2',
+#     'CUPV_3' : 'Cupavo 3',     'CUPV_4' : 'Cupavo 4',
+#     'CUPV_5' : 'Cupavo 5',     'CUPV_6' : 'Cupavo 6',
+#     'CUPV_7' : 'Cupavo 7',     'CUPV_8' : 'Cupavo 8',
+#     'CUPV_9' : 'Cupavo 9',     'CUPV_10': 'Cupavo 10',
+#     'ROS6_1' : 'Roslund 6-1',  'ROS6_2' : 'Roslund 6-2',
+# }
+
+# ------------------------------------------------------------------------------#
+
+# Sco-Cen (Ratzenböck et al. 2023)
 CAT_AGES = {
-    1:  (4.7, 2.3, 11.0),   # lambda Ori
-    2:  (13.36, 8.73, 17.55),   # Ori-North
-    3:  (9.0, 5.6, 13.0),   # Briceno-1A
-    4:  (9.0, 5.6, 13.0),   # Briceno-1B
-    5:  (10.0,  8.0, 12.0),   # Ori-East
-    6:  (9.0,  7.0, 11.0),   # OBP-Far
-    7:  (2.5, 2.2, 2.8),   # sigma Ori
-    8:  (17.9, 11.4, 24.0),   # OBP-b
-    9:  (6.4, 2.1, 12.8),   # OBP-d
-    10: (6.8, 3.9, 10.4),   # OBP-Near
-    11: (2.0,  1.0,  3.0),   # ONC
-    12: (3.1, 1.0, 5.7),   # Ori-South
-    13: (18.2, 12.9, 28.0),   # Orion Y
+  #  ID   age   lo    hi
+     1: ( 3.8,  3.4,  4.2),    2: ( 5.8,  5.3,  7.6),    3: ( 9.8,  8.4, 11.0),
+     4: ( 7.6,  6.9,  8.4),    5: (10.0,  9.5, 11.0),    6: (12.7, 11.0, 13.1),
+     7: (13.7, 13.1, 15.0),    8: (14.7, 14.0, 15.5),    9: (19.1, 17.8, 21.5),
+    10: (15.0, 13.6, 15.9),   11: (17.2, 14.8, 18.1),   12: (20.0, 17.8, 22.5),
+    13: ( 6.0,  5.1,  6.6),   14: (15.3, 15.0, 15.9),   15: (16.9, 16.3, 17.8),
+    16: (42.1, 33.2, 51.1),   17: (20.9, 20.1, 21.6),   18: (13.4, 12.7, 14.8),
+    19: (14.4, 13.5, 14.8),   20: (15.7, 14.8, 16.0),   21: (15.5, 15.0, 16.1),
+    22: (11.2, 10.2, 12.2),   23: (10.2,  9.5, 11.2),   24: ( 8.8,  8.4,  9.4),
+    25: ( 9.4,  8.5, 10.8),   26: ( 3.4,  2.5,  6.5),   27: (15.9, 13.8, 17.5),
+    28: (15.4, 13.5, 16.2),   29: ( 8.5,  6.1, 10.5),   30: (11.6, 10.8, 12.1),
+    31: (14.5, 13.9, 15.1),   32: ( 8.5,  7.2,  9.6),   33: ( 3.8,  2.9,  5.7),
+    34: ( 2.8,  1.7,  3.5),   35: ( 9.6,  7.4, 11.3),   36: ( 9.2,  7.5, 12.5),
+    37: (19.1, 14.5, 25.7),
 }
-
-# Full subgroup name mapping
 CAT_NAMES = {
-    1:  'lambda Ori',   2:  'Ori-North',
-    3:  'Briceno-1A',   4:  'Briceno-1B',
-    5:  'Ori-East',     6:  'OBP-Far',
-    7:  'sigma Ori',    8:  'OBP-b',
-    9:  'OBP-d',        10: 'OBP-Near',
-    11: 'ONC',          12: 'Ori-South',
-    13: 'Orion Y',
+    1:'rho Oph/L1688', 2:'nu Sco',         3:'delta Sco',      4:'beta Sco',
+    5:'sigma Sco',     6:'Antares',        7:'rho Sco',        8:'Scorpio-Body',
+    9:'US-foreground', 10:'V1062-Sco',     11:'mu Sco',        12:'Libra-South',
+    13:'Lupus-1-4',    14:'eta Lup',       15:'phi Lup',       16:'Norma-North',
+    17:'e Lup',        18:'UPK606',        19:'rho Lup',       20:'nu Cen',
+    21:'sig Cen',      22:'Acrux',         23:'Musca-fgd',     24:'eps Cham',
+    25:'eta Cham',     26:'B59',           27:'Pipe-North',    28:'tet Oph',
+    29:'CrA-Main',     30:'CrA-North',     31:'Scorpio-Sting', 32:'Centaurus-Far',
+    33:'Chamaeleon-1', 34:'Chamaeleon-2',  35:'L134/L183',     36:'Oph SE',
+    37:'Oph NorthFar',
 }
 
+
+# Cluster name mapping — built automatically from crossmatch if --cat is given,
+# otherwise stays empty (cluster IDs are used as labels).
 CLUSTER_NAMES = {}
+
+def _resolve_cat_key(raw):
+    """Convert a raw catalog value to the key type used in CAT_AGES/CAT_NAMES."""
+    s = raw.decode().strip() if isinstance(raw, bytes) else str(raw).strip()
+    try:
+        return int(s), s
+    except (ValueError, TypeError):
+        return s, s
+
+
+def build_cluster_names(cat, name_col, hdb, min_frac=0.30, min_count=3):
+    cat = cat.copy(); hdb = hdb.copy()
+    cat['source_id'] = np.array(cat['source_id']).astype(str)
+    hdb['source_id'] = np.array(hdb['source_id']).astype(str)
+    _, keep = np.unique(np.array(cat['source_id']), return_index=True)
+    cat_dedup = cat[keep]
+
+    try:
+        matched = join(hdb, cat_dedup[['source_id', name_col]],
+                       keys='source_id', join_type='inner')
+    except Exception as e:
+        print(f"  Warning: crossmatch join failed ({e})")
+        return {}
+
+    names = {}
+    for cid in np.unique(np.array(hdb['cluster_id'])):
+        n_total    = (np.array(hdb['cluster_id']) == cid).sum()
+        match_mask = np.array(matched['cluster_id']) == cid
+        if match_mask.sum() < min_count:
+            continue
+        vals, counts = np.unique(np.array(matched[name_col])[match_mask], return_counts=True)
+        best_raw     = vals[np.argmax(counts)]
+        best_key, best_str = _resolve_cat_key(best_raw)
+        if counts.max() / n_total >= min_frac:
+            names[int(cid)] = CAT_NAMES.get(best_key, best_str)
+    return names	
 
 # ---------------------------------------------------------------------------
 # Age-dependent logZ threshold
@@ -156,95 +282,53 @@ def apply_filters(results, args):
 # ---------------------------------------------------------------------------
 # Cross-match
 # ---------------------------------------------------------------------------
-def crossmatch_labels(results, cat, name_col):
-	hdb_file = path_hdbscan + f'hdbscan_clusters_{run_tag}.fits'
-	hdb = Table.read(hdb_file)
-
-	cat_arr = np.array(cat['source_id'])
-	_, keep = np.unique(cat_arr, return_index=True)
-	cat_dedup = cat[keep]
-
-	matched = join(hdb, cat_dedup[['source_id', name_col]],
-			       keys='source_id', join_type='inner')
-
-	ref_labels, ref_ages, ref_ages_lo, ref_ages_hi = [], [], [], []
-
-	for row in results:
-		k     = int(row['cluster_id'])
-		mask  = np.array(matched['cluster_id']) == k
-		n_tot = int(row['n_members'])
-
-		if mask.sum() < 3:
-			ref_labels.append('NEW')
-			ref_ages.append(np.nan)
-			ref_ages_lo.append(np.nan)
-			ref_ages_hi.append(np.nan)
-		else:
-			names, counts = np.unique(
-				np.array(matched[name_col])[mask], return_counts=True)
-			best_raw = names[np.argmax(counts)]
-			best_str = best_raw.decode().strip() if isinstance(best_raw, bytes) else str(best_raw).strip()
-			frac     = counts.max() / n_tot * 100
-			ref_labels.append(f'{best_str} ({frac:.0f}%)')
-			try:
-				best_key = int(best_str)
-			except (ValueError, TypeError):
-				best_key = best_str
-			cat_ages = CAT_AGES.get(best_key, (np.nan, np.nan, np.nan))
-			ref_ages.append(cat_ages[0])
-			ref_ages_lo.append(cat_ages[1])
-			ref_ages_hi.append(cat_ages[2])
-
-	results['ref_label']   = ref_labels
-	results['ref_age_myr'] = np.array(ref_ages,    dtype=float)
-	results['ref_age_lo']  = np.array(ref_ages_lo, dtype=float)
-	results['ref_age_hi']  = np.array(ref_ages_hi, dtype=float)
-	return results
-
-
-def build_cluster_names(cat, name_col, hdb):
-    from astropy.table import join as astropy_join
-
-    # fix source_id type mismatch
-    cat = cat.copy()
-    hdb = hdb.copy()
+def crossmatch_labels(results, cat, name_col, min_count=3):
+    hdb_file = path_hdbscan + f'hdbscan_clusters_{run_tag}.fits'
+    hdb = Table.read(hdb_file)
+    cat = cat.copy(); hdb = hdb.copy()
     cat['source_id'] = np.array(cat['source_id']).astype(str)
     hdb['source_id'] = np.array(hdb['source_id']).astype(str)
-
-    cat_arr = np.array(cat['source_id'])
-    _, keep = np.unique(cat_arr, return_index=True)
+    _, keep = np.unique(np.array(cat['source_id']), return_index=True)
     cat_dedup = cat[keep]
 
-    try:
-        matched = astropy_join(hdb, cat_dedup[['source_id', name_col]],
-                               keys='source_id', join_type='inner')
-    except Exception as e:
-        print(f"  Warning: crossmatch join failed ({e})")
-        return {}
+    matched = join(hdb, cat_dedup[['source_id', name_col]],
+                   keys='source_id', join_type='inner')
 
-    names = {}
-    for cid in np.unique(np.array(hdb['cluster_id'])):
-        hdb_mask   = np.array(hdb['cluster_id']) == cid
-        n_total    = hdb_mask.sum()
-        match_mask = np.array(matched['cluster_id']) == cid
-        if match_mask.sum() < 3:
+    ref_labels, ref_ages, ref_ages_lo, ref_ages_hi = [], [], [], []
+    for row in results:
+        k     = int(row['cluster_id'])
+        n_tot = int(row['n_members'])
+        mask  = np.array(matched['cluster_id']) == k
+
+        if mask.sum() < min_count:
+            ref_labels.append('NEW')
+            ref_ages.append(np.nan); ref_ages_lo.append(np.nan); ref_ages_hi.append(np.nan)
             continue
 
-        str_ids      = np.array(matched[name_col])[match_mask].astype(str)
-        vals, counts = np.unique(str_ids, return_counts=True)
+        vals, counts = np.unique(np.array(matched[name_col])[mask], return_counts=True)
         best_raw     = vals[np.argmax(counts)]
+        best_key, best_str = _resolve_cat_key(best_raw)
+        best_count   = counts.max()
 
-        # try int lookup first (Orion: integer IDs), fall back to string (Cep-Her: 'ORPH')
-        try:
-            best_key = int(best_raw)
-        except (ValueError, TypeError):
-            best_key = str(best_raw).strip()
+        cat_mask         = np.array(cat_dedup[name_col]).astype(str) == best_str
+        n_subgroup_total = cat_mask.sum()
+        frac_hdbscan     = best_count / n_tot * 100
+        frac_catalog     = best_count / n_subgroup_total * 100 if n_subgroup_total > 0 else np.nan
 
-        best_frac = counts.max() / n_total
-        if best_frac >= 0.30:
-            names[int(cid)] = CAT_NAMES.get(best_key, str(best_raw).strip())
+        ref_labels.append(
+            f'{CAT_NAMES.get(best_key, best_str)} '
+            f'({frac_hdbscan:.0f}% of HDBSCAN | {frac_catalog:.0f}% of catalog)'
+        )
+        age_tuple = CAT_AGES.get(best_key, (np.nan, np.nan, np.nan))
+        ref_ages.append(age_tuple[0])
+        ref_ages_lo.append(age_tuple[1])
+        ref_ages_hi.append(age_tuple[2])
 
-    return names
+    results['ref_label']   = ref_labels
+    results['ref_age_myr'] = np.array(ref_ages,    dtype=float)
+    results['ref_age_lo']  = np.array(ref_ages_lo, dtype=float)
+    results['ref_age_hi']  = np.array(ref_ages_hi, dtype=float)
+    return results
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -372,59 +456,63 @@ def plot_age_vs_dist(res, args, cmd='BPRP'):
     lo   = np.array(res['age_lo_myr'])
     hi   = np.array(res['age_hi_myr'])
     dist = np.array(res['dist_mean'])
+    l    = np.array(res['l_mean'])
     ids  = np.array(res['cluster_id'], dtype=int)
     yerr = np.vstack([np.maximum(0, ages - lo), np.maximum(0, hi - ages)])
+
+    # heliocentric XY in the Galactic plane
+    l_rad = np.deg2rad(l)
+    X = dist * np.cos(l_rad)   # toward Galactic centre
+    Y = dist * np.sin(l_rad)   # toward l=90
 
     cmap = plt.cm.plasma_r
     norm = mcolors.Normalize(vmin=max(0, float(ages.min()) - 2),
                              vmax=float(ages.max()) + 2)
     colors = cmap(norm(ages))
-    
+
     sqrt_n = np.sqrt(np.array(res['n_members'], dtype=float))
     denom  = sqrt_n.max()
     s_min, s_max = 40, 300
     sizes  = (s_min + (s_max - s_min) * (sqrt_n / denom)
               if denom > 0 else np.full(len(sqrt_n), (s_min + s_max) / 2.0))
-    ms = np.sqrt(sizes)  # markersize = sqrt(area)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 9))
+
+    sc = ax.scatter(X, Y, c=ages, cmap=cmap, norm=norm,
+                    s=sizes, alpha=0.85,
+                    edgecolors='white', linewidths=0.8, zorder=3)
 
     for i in range(len(res)):
-        ax.errorbar(dist[i], ages[i],
-                    yerr=[[yerr[0, i]], [yerr[1, i]]],
-                    fmt='none',
-                    capsize=3, capthick=1.2, elinewidth=1.0,
-                    ecolor='#555555', zorder=4)
-        ax.plot(dist[i], ages[i], 'o',
-            color=colors[i], markersize=ms[i]*0.75,
-            zorder=3)
         label = get_label(ids[i])
         ax.annotate(label,
-                    xy=(dist[i], ages[i]),
-                    xytext=(-10, 0), textcoords='offset points',
-                    fontsize=6, ha='center', va='bottom',
-                    color='green', zorder=5,
-                    rotation=90, rotation_mode='anchor')
+                    xy=(X[i], Y[i]),
+                    xytext=(5, 5), textcoords='offset points',
+                    fontsize=6, color='green', zorder=5, fontweight='bold')
 
-    # Sun marker
-    ax.axvline(0, color='gray', lw=0.8, ls='--', alpha=0.5)
-    ax.scatter([0], [0], marker='*', s=200, c='gold',
+    # Sun at origin
+    ax.scatter([0], [0], marker='*', s=300, c='gold',
                edgecolors='k', linewidths=0.8, zorder=6, label='Sun')
+    ax.annotate('Sun', xy=(0, 0), xytext=(6, 6),
+                textcoords='offset points', fontsize=8, color='goldenrod')
 
-    # colorbar
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-    sm.set_array([])
-    cbar = plt.colorbar(sm, ax=ax, pad=0.01, fraction=0.02)
+    # Galactic centre direction
+    ax.annotate('', xy=(max(np.abs(X)) * 0.15, 0), xytext=(0, 0),
+                arrowprops=dict(arrowstyle='->', color='gray', lw=1.2))
+    ax.text(max(np.abs(X)) * 0.17, 0, 'GC', fontsize=8,
+            color='gray', va='center')
+
+    cbar = plt.colorbar(sc, ax=ax, pad=0.02, fraction=0.025)
     cbar.set_label('Age (Myr)', fontsize=10)
     cbar.ax.tick_params(labelsize=8)
 
-    ax.set_xlabel('Distance (pc)', fontsize=12)
-    ax.set_ylabel('Age (Myr)', fontsize=12)
-    ax.set_title(f'Age vs distance — {name_complex}  '
-                 f'(PARSEC-{cmd})', fontsize=12)
+    ax.set_aspect('equal')
+    ax.set_xlabel('X (pc)  [toward Galactic centre]', fontsize=12)
+    ax.set_ylabel('Y (pc)  [toward $l=90°$]', fontsize=12)
+    ax.set_title(f'Heliocentric map — {name_complex}  (PARSEC-{cmd})', fontsize=12)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.grid(True, alpha=0.2, linestyle='--')
+    ax.invert_xaxis()   # Galactic convention: l increases to the left
     ax.legend(fontsize=8, framealpha=0.9)
 
     plt.tight_layout()
