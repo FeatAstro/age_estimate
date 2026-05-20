@@ -45,11 +45,13 @@ from astropy.table import Table, join
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-name_complex = 'Sco_Cen'
-sky_tag      = 'ra100_300_dec-90_0' # choose
-ms_tag       = '80'
-mc_tag       = '20'
-cv_tag       = '10' 
+name_complex = 'Orion_OB1'
+sky_tag      = 'ra75_90_dec-14_16' # choose
+ms_tag       = '37'
+mc_tag       = '15'
+cv_tag       = '6' 
+
+catalog_name = 'Sanchez+2024'  # choose
 
 run_tag      = f'{name_complex}_{sky_tag}_ms{ms_tag}_mc{mc_tag}_cv{cv_tag}'
 path_ages    = f'outputs/{run_tag}/ages/'
@@ -60,32 +62,32 @@ path_summary = 'summary/'
 os.makedirs(path_results, exist_ok=True)
 
 # Orion OB1 (Sanchez-Sanjuan et al. 2024)
-# CAT_AGES = {
-# 1:  (4.7, 2.3, 11.0),   # lambda Ori
-# 2:  (13.36, 8.73, 17.55),   # Ori-North
-# 3:  (9.0, 5.6, 13.0),   # Briceno-1A
-# 4:  (9.0, 5.6, 13.0),   # Briceno-1B
-# 5:  (10.0,  8.0, 12.0),   # Ori-East
-# 6:  (9.0,  7.0, 11.0),   # OBP-Far
-# 7:  (2.5, 2.2, 2.8),   # sigma Ori
-# 8:  (17.9, 11.4, 24.0),   # OBP-b
-# 9:  (6.4, 2.1, 12.8),   # OBP-d
-# 10: (6.8, 3.9, 10.4),   # OBP-Near
-# 11: (2.0,  1.0,  3.0),   # ONC
-# 12: (3.1, 1.0, 5.7),   # Ori-South
-# 13: (18.2, 12.9, 28.0),   # Orion Y
-# }
+CAT_AGES = {
+1:  (4.7, 2.3, 11.0),   # lambda Ori
+2:  (13.36, 8.73, 17.55),   # Ori-North
+3:  (9.0, 5.6, 13.0),   # Briceno-1A
+4:  (9.0, 5.6, 13.0),   # Briceno-1B
+5:  (10.0,  8.0, 12.0),   # Ori-East
+6:  (9.0,  7.0, 11.0),   # OBP-Far
+7:  (2.5, 2.2, 2.8),   # sigma Ori
+8:  (17.9, 11.4, 24.0),   # OBP-b
+9:  (6.4, 2.1, 12.8),   # OBP-d
+10: (6.8, 3.9, 10.4),   # OBP-Near
+11: (2.0,  1.0,  3.0),   # ONC
+12: (3.1, 1.0, 5.7),   # Ori-South
+13: (18.2, 12.9, 28.0),   # Orion Y
+}
 
-# # Full subgroup name mapping
-# CAT_NAMES = {
-# 1:  'lambda Ori',   2:  'Ori-North',
-# 3:  'Briceno-1A',   4:  'Briceno-1B',
-# 5:  'Ori-East',     6:  'OBP-Far',
-# 7:  'sigma Ori',    8:  'OBP-b',
-# 9:  'OBP-d',        10: 'OBP-Near',
-# 11: 'ONC',          12: 'Ori-South',
-# 13: 'Orion Y',
-# }
+# Cluster
+CAT_NAMES = {
+1:  'lambda Ori',   2:  'Ori-North',
+3:  'Briceno-1A',   4:  'Briceno-1B',
+5:  'Ori-East',     6:  'OBP-Far',
+7:  'sigma Ori',    8:  'OBP-b',
+9:  'OBP-d',        10: 'OBP-Near',
+11: 'ONC',          12: 'Ori-South',
+13: 'Orion Y',
+}
 
 # ------------------------------------------------------------------------------#
 
@@ -118,6 +120,7 @@ os.makedirs(path_results, exist_ok=True)
 #     'ROS6_1' : (80.0, 80.0, 99.9),   'ROS6_2' : (71.2, 64.8, 77.6),
 # }
 
+# # SUBGROUP
 # CAT_NAMES = {
 #     'ORPH_1' : 'Orpheus 1',    'ORPH_2' : 'Orpheus 2',
 #     'ORPH_3' : 'Orpheus 3',    'ORPH_4' : 'Orpheus 4',
@@ -149,35 +152,47 @@ os.makedirs(path_results, exist_ok=True)
 # ------------------------------------------------------------------------------#
 
 # Sco-Cen (Ratzenböck et al. 2023)
-CAT_AGES = {
-  #  ID   age   lo    hi
-     1: ( 3.8,  3.4,  4.2),    2: ( 5.8,  5.3,  7.6),    3: ( 9.8,  8.4, 11.0),
-     4: ( 7.6,  6.9,  8.4),    5: (10.0,  9.5, 11.0),    6: (12.7, 11.0, 13.1),
-     7: (13.7, 13.1, 15.0),    8: (14.7, 14.0, 15.5),    9: (19.1, 17.8, 21.5),
-    10: (15.0, 13.6, 15.9),   11: (17.2, 14.8, 18.1),   12: (20.0, 17.8, 22.5),
-    13: ( 6.0,  5.1,  6.6),   14: (15.3, 15.0, 15.9),   15: (16.9, 16.3, 17.8),
-    16: (42.1, 33.2, 51.1),   17: (20.9, 20.1, 21.6),   18: (13.4, 12.7, 14.8),
-    19: (14.4, 13.5, 14.8),   20: (15.7, 14.8, 16.0),   21: (15.5, 15.0, 16.1),
-    22: (11.2, 10.2, 12.2),   23: (10.2,  9.5, 11.2),   24: ( 8.8,  8.4,  9.4),
-    25: ( 9.4,  8.5, 10.8),   26: ( 3.4,  2.5,  6.5),   27: (15.9, 13.8, 17.5),
-    28: (15.4, 13.5, 16.2),   29: ( 8.5,  6.1, 10.5),   30: (11.6, 10.8, 12.1),
-    31: (14.5, 13.9, 15.1),   32: ( 8.5,  7.2,  9.6),   33: ( 3.8,  2.9,  5.7),
-    34: ( 2.8,  1.7,  3.5),   35: ( 9.6,  7.4, 11.3),   36: ( 9.2,  7.5, 12.5),
-    37: (19.1, 14.5, 25.7),
-}
-CAT_NAMES = {
-    1:'rho Oph/L1688', 2:'nu Sco',         3:'delta Sco',      4:'beta Sco',
-    5:'sigma Sco',     6:'Antares',        7:'rho Sco',        8:'Scorpio-Body',
-    9:'US-foreground', 10:'V1062-Sco',     11:'mu Sco',        12:'Libra-South',
-    13:'Lupus-1-4',    14:'eta Lup',       15:'phi Lup',       16:'Norma-North',
-    17:'e Lup',        18:'UPK606',        19:'rho Lup',       20:'nu Cen',
-    21:'sig Cen',      22:'Acrux',         23:'Musca-fgd',     24:'eps Cham',
-    25:'eta Cham',     26:'B59',           27:'Pipe-North',    28:'tet Oph',
-    29:'CrA-Main',     30:'CrA-North',     31:'Scorpio-Sting', 32:'Centaurus-Far',
-    33:'Chamaeleon-1', 34:'Chamaeleon-2',  35:'L134/L183',     36:'Oph SE',
-    37:'Oph NorthFar',
-}
+# CAT_AGES = {
+#   #  ID   age   lo    hi
+#      1: ( 3.8,  3.4,  4.2),    2: ( 5.8,  5.3,  7.6),    3: ( 9.8,  8.4, 11.0),
+#      4: ( 7.6,  6.9,  8.4),    5: (10.0,  9.5, 11.0),    6: (12.7, 11.0, 13.1),
+#      7: (13.7, 13.1, 15.0),    8: (14.7, 14.0, 15.5),    9: (19.1, 17.8, 21.5),
+#     10: (15.0, 13.6, 15.9),   11: (17.2, 14.8, 18.1),   12: (20.0, 17.8, 22.5),
+#     13: ( 6.0,  5.1,  6.6),   14: (15.3, 15.0, 15.9),   15: (16.9, 16.3, 17.8),
+#     16: (42.1, 33.2, 51.1),   17: (20.9, 20.1, 21.6),   18: (13.4, 12.7, 14.8),
+#     19: (14.4, 13.5, 14.8),   20: (15.7, 14.8, 16.0),   21: (15.5, 15.0, 16.1),
+#     22: (11.2, 10.2, 12.2),   23: (10.2,  9.5, 11.2),   24: ( 8.8,  8.4,  9.4),
+#     25: ( 9.4,  8.5, 10.8),   26: ( 3.4,  2.5,  6.5),   27: (15.9, 13.8, 17.5),
+#     28: (15.4, 13.5, 16.2),   29: ( 8.5,  6.1, 10.5),   30: (11.6, 10.8, 12.1),
+#     31: (14.5, 13.9, 15.1),   32: ( 8.5,  7.2,  9.6),   33: ( 3.8,  2.9,  5.7),
+#     34: ( 2.8,  1.7,  3.5),   35: ( 9.6,  7.4, 11.3),   36: ( 9.2,  7.5, 12.5),
+#     37: (19.1, 14.5, 25.7),
+# }
 
+# SigMA
+# CAT_NAMES = {
+#     1:'rho Oph/L1688', 2:'nu Sco',         3:'delta Sco',      4:'beta Sco',
+#     5:'sigma Sco',     6:'Antares',        7:'rho Sco',        8:'Scorpio-Body',
+#     9:'US-foreground', 10:'V1062-Sco',     11:'mu Sco',        12:'Libra-South',
+#     13:'Lupus-1-4',    14:'eta Lup',       15:'phi Lup',       16:'Norma-North',
+#     17:'e Lup',        18:'UPK606',        19:'rho Lup',       20:'nu Cen',
+#     21:'sig Cen',      22:'Acrux',         23:'Musca-fgd',     24:'eps Cham',
+#     25:'eta Cham',     26:'B59',           27:'Pipe-North',    28:'tet Oph',
+#     29:'CrA-Main',     30:'CrA-North',     31:'Scorpio-Sting', 32:'Centaurus-Far',
+#     33:'Chamaeleon-1', 34:'Chamaeleon-2',  35:'L134/L183',     36:'Oph SE',
+#     37:'Oph NorthFar',
+# }
+
+
+# ------------------------------------------------------------------------------#
+
+# Sco-Cen (Kerr et al. 2023)
+# CAT_AGES = {
+# }
+
+# EOM & Leaf
+# CAT_NAMES = {
+# }
 
 # Cluster name mapping — built automatically from crossmatch if --cat is given,
 # otherwise stays empty (cluster IDs are used as labels).
@@ -189,10 +204,16 @@ CLUSTER_NAMES = {}
 # Per-plot dicts: {cluster_id: direction}
 # Valid directions: 'NE', 'NW', 'SE', 'SW', 'E', 'W', 'N', 'S'
 # Leave empty to rely entirely on the automatic placement algorithm.
-LABEL_DIR_STARS_LB      = {24: 'SW', 25: 'SE'}   # galactic coords, individual stars
-LABEL_DIR_BUBBLES_LB    = {17: 'NW', 32: 'SW', 33: 'NW', 31: 'NE'}   # galactic coords, bubbles
-LABEL_DIR_STARS_RADEC   = {24: 'SW', 25: 'SE', 28: 'NE', 26: 'S', 30: 'S', 17: 'S'}   # RA/Dec, individual stars
-LABEL_DIR_BUBBLES_RADEC = {17: 'NW', 25: 'S', 23: 'E', 30: 'S'}   # RA/Dec, bubbles
+LABEL_DIR_STARS_LB      = {7: 'SW', 4: 'S', 9: 'S'}   
+LABEL_DIR_BUBBLES_LB    = {4: 'S', 9: 'S'}  
+LABEL_DIR_STARS_RADEC   = {}   
+LABEL_DIR_BUBBLES_RADEC = {}
+
+# Sco-Cen
+# LABEL_DIR_STARS_LB      = {24: 'SW', 25: 'SE'}   # galactic coords, individual stars
+# LABEL_DIR_BUBBLES_LB    = {17: 'NW', 32: 'SW', 33: 'NW', 31: 'NE'}   # galactic coords, bubbles
+# LABEL_DIR_STARS_RADEC   = {24: 'SW', 25: 'SE', 28: 'NE', 26: 'S', 30: 'S', 17: 'S'}   # RA/Dec, individual stars
+# LABEL_DIR_BUBBLES_RADEC = {17: 'NW', 25: 'S', 23: 'E', 30: 'S'}   # RA/Dec, bubbles
 
 def _resolve_cat_key(raw):
     """Convert a raw catalog value to the key type used in CAT_AGES/CAT_NAMES."""
@@ -201,6 +222,21 @@ def _resolve_cat_key(raw):
         return int(s), s
     except (ValueError, TypeError):
         return s, s
+
+
+def _valid_labels(col):
+    """Return non-empty, non-masked string labels from a (possibly masked) column slice."""
+    import numpy.ma as ma
+    arr = np.asarray(col)
+    mask = ma.getmaskarray(col)
+    out = []
+    for i, v in enumerate(arr):
+        if mask[i]:
+            continue
+        s = v.decode().strip() if isinstance(v, bytes) else str(v).strip()
+        if s and s not in ('--', 'nan'):
+            out.append(s)
+    return np.array(out)
 
 
 def build_cluster_names(cat, name_col, hdb, min_frac=0.30, min_count=3):
@@ -223,7 +259,10 @@ def build_cluster_names(cat, name_col, hdb, min_frac=0.30, min_count=3):
         match_mask = np.array(matched['cluster_id']) == cid
         if match_mask.sum() < min_count:
             continue
-        vals, counts = np.unique(np.array(matched[name_col])[match_mask], return_counts=True)
+        raw = _valid_labels(matched[name_col][match_mask])
+        if len(raw) == 0:
+            continue
+        vals, counts = np.unique(raw, return_counts=True)
         best_raw     = vals[np.argmax(counts)]
         best_key, best_str = _resolve_cat_key(best_raw)
         if counts.max() / n_total >= min_frac:
@@ -310,7 +349,13 @@ def crossmatch_labels(results, cat, name_col, min_count=3):
             ref_ages.append(np.nan); ref_ages_lo.append(np.nan); ref_ages_hi.append(np.nan)
             continue
 
-        vals, counts = np.unique(np.array(matched[name_col])[mask], return_counts=True)
+        raw = _valid_labels(matched[name_col][mask])
+        if len(raw) == 0:
+            ref_labels.append('NEW')
+            ref_ages.append(np.nan); ref_ages_lo.append(np.nan); ref_ages_hi.append(np.nan)
+            continue
+
+        vals, counts = np.unique(raw, return_counts=True)
         best_raw     = vals[np.argmax(counts)]
         best_key, best_str = _resolve_cat_key(best_raw)
         best_count   = counts.max()
@@ -653,7 +698,7 @@ def plot_age_map_stars(members, results, args, cmd='BPRP'):
     ax.grid(True, alpha=0.3, linestyle='--', color='#aaaaaa')
 
     plt.tight_layout()
-    out = path_results + f'agemap_stars_{cmd}.png'
+    out = path_results + f'agemap_stars_{catalog_name}_{cmd}.png'
     plt.savefig(out, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"Age map (stars) -> {out}")
@@ -760,7 +805,7 @@ def plot_age_map_bubbles(members, results, args, cmd='BPRP'):
     ax.grid(True, alpha=0.3, linestyle='--', color='#aaaaaa')
 
     plt.tight_layout()
-    out = path_results + f'agemap_bubbles_{cmd}.png'
+    out = path_results + f'agemap_bubbles_{catalog_name}_{cmd}.png'
     plt.savefig(out, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"Age map (bubbles) -> {out}")
@@ -859,7 +904,7 @@ def plot_age_map_stars_radec(members, results, args, cmd='BPRP'):
     ax.grid(True, alpha=0.3, linestyle='--', color='#aaaaaa')
 
     plt.tight_layout()
-    out = path_results + f'agemap_stars_radec_{cmd}.png'
+    out = path_results + f'agemap_stars_radec_{catalog_name}_{cmd}.png'
     plt.savefig(out, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"Age map (stars, RA/Dec) -> {out}")
@@ -959,7 +1004,7 @@ def plot_age_map_bubbles_radec(results, args, cmd='BPRP'):
     ax.grid(True, alpha=0.3, linestyle='--', color='#aaaaaa')
 
     plt.tight_layout()
-    out = path_results + f'agemap_bubbles_radec_{cmd}.png'
+    out = path_results + f'agemap_bubbles_radec_{catalog_name}_{cmd}.png'
     plt.savefig(out, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"Age map (bubbles, RA/Dec) -> {out}")
@@ -1055,12 +1100,12 @@ def plot_age_map_stars_xyz(members, results, args, cmd='BPRP'):
         width=1400, height=900,
     )
 
-    out_html = path_results + f'agemap_stars_xyz_{cmd}.html'
+    out_html = path_results + f'agemap_stars_xyz_{catalog_name}_{cmd}.html'
     fig.write_html(out_html)
     print(f"Age map (stars, XYZ) -> {out_html}")
 
     try:
-        out_png = path_results + f'agemap_stars_xyz_{cmd}.png'
+        out_png = path_results + f'agemap_stars_xyz_{catalog_name}_{cmd}.png'
         fig.write_image(out_png, width=1800, height=1200)
         print(f"Age map (stars, XYZ) -> {out_png}")
     except Exception:
@@ -1138,12 +1183,12 @@ def plot_age_map_bubbles_xyz(members, results, args, cmd='BPRP'):
         width=1400, height=900,
     )
 
-    out_html = path_results + f'agemap_bubbles_xyz_{cmd}.html'
+    out_html = path_results + f'agemap_bubbles_xyz_{catalog_name}_{cmd}.html'
     fig.write_html(out_html)
     print(f"Age map (bubbles, XYZ) -> {out_html}")
 
     try:
-        out_png = path_results + f'agemap_bubbles_xyz_{cmd}.png'
+        out_png = path_results + f'agemap_bubbles_xyz_{catalog_name}_{cmd}.png'
         fig.write_image(out_png, width=1800, height=1200)
         print(f"Age map (bubbles, XYZ) -> {out_png}")
     except Exception:
