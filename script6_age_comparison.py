@@ -36,7 +36,9 @@ catalog_name = 'Sanchez-Sanjuan+2024'
 
 run_tag      = f'{name_complex}_{sky_tag}_ms{ms_tag}_mc{mc_tag}_cv{cv_tag}'
 path_results = f'outputs/{run_tag}/agemap/'
+path_comparison = 'comparison/'
 os.makedirs(path_results, exist_ok=True)
+os.makedirs(path_comparison, exist_ok=True)
 
 # ---------------------------------------------------------------------------
 # Our clusters  {hdbscan_cluster_id: name}  and  {id: (age, lo, hi)}
@@ -278,7 +280,9 @@ def plot_comparison(matches, cmd):
     plt.tight_layout()
     fig.subplots_adjust(right=0.78)
     out = path_results + f'age_comparison_{catalog_name}_{cmd}.png'
+    out2 = path_comparison + f'age_comparison_{catalog_name}_{cmd}.png'
     plt.savefig(out, dpi=150, bbox_inches='tight')
+    plt.savefig(out2, dpi=150, bbox_inches='tight')
     plt.close()
     print(f'Age comparison -> {out}')
 
